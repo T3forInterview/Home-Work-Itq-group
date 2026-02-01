@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.19.xsd">
+
+    <changeSet id="2026-1" author="NickolayPetrushin">
+        <comment>Создание таблицы document</comment>
+        <sql>
+            CREATE TABLE documents (
+                                      id BIGSERIAL PRIMARY KEY,
+                                      uniq_number VARCHAR(50) NOT NULL UNIQUE,
+                                      author VARCHAR(100) NOT NULL,
+                                      name VARCHAR(255) NOT NULL,
+                                      status VARCHAR(20) NOT NULL,
+                                      initiator VARCHAR(100) NOT NULL,
+                                      created_date DATE NOT NULL,
+                                      update_date DATE,
+                                      CONSTRAINT chk_documents_status CHECK (status IN ('DRAFT', 'SUBMITTED', 'APPROVED'))
+            );
+
+            CREATE INDEX idx_document_status ON documents(status);
+            CREATE INDEX idx_document_author ON documents(author);
+            CREATE INDEX idx_document_created_date ON documents(created_date);
+            CREATE INDEX idx_document_update_date ON documents(update_date);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

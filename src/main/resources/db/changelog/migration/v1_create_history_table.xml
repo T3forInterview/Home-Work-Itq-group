@@ -1,0 +1,20 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.17.xsd">
+<changeSet id="2026-2" author="NickolayPetrushin">
+    <comment>Создание таблицы History</comment>
+    <sql>
+        CREATE TABLE history (
+                              id BIGSERIAL PRIMARY KEY,
+                              document_id BIGINT  NOT NULL,
+                              initiator VARCHAR(100) NOT NULL,
+                              transfer_date DATE NOT NULL,
+                              action VARCHAR(20) NOT NULL,
+                              comment VARCHAR(255),
+                              CONSTRAINT fk_history_document FOREIGN KEY (document_id) REFERENCES documents(id),
+                              CONSTRAINT chk_history_action CHECK ( action IN ('SUBMIT', 'APPROVE'))
+        );
+    </sql>
+</changeSet>
+</databaseChangeLog>

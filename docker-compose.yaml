@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hw-db-postgres
+    environment:
+      POSTGRES_DB: hw-db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: wasd123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hw-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d hw-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hw-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hw-db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: wasd123
+      SPRING_LIQUIBASE_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    networks:
+      - hw-network
+
+volumes:
+  postgres_data:
+
+networks:
+  hw-network:
+    driver: bridge

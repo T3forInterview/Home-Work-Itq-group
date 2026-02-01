@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: hw-app
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/hw-db}
+    username: ${SPRING_DATASOURCE_USERNAME:admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:wasd123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: ${SPRING_LIQUIBASE_ENABLED:true}
+
+  batch:
+    job:
+      enabled: true
+    jdbc:
+      initialize-schema: always
+
+  server:
+    port: 8080
+
+  logging:
+    level:
+      ru.hw.PetrushinNickolay: DEBUG
+      org.springframework.web: INFO
