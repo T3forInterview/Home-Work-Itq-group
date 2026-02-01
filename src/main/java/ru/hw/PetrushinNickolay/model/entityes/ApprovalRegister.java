@@ -27,6 +27,11 @@ public class ApprovalRegister {
     public ApprovalRegister() {
     }
 
+    public ApprovalRegister(Document document, LocalDate approvalDate) {
+        this.id = id;
+        this.document = document;
+        this.approvalDate = approvalDate;
+    }
 
     public Long getId() {
         return id;

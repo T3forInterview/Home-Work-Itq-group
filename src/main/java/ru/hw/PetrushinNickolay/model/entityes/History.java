@@ -38,6 +38,14 @@ public class History {
     public History() {
     }
 
+    public History(Document document, String initiator, LocalDate transferDate, Action action, String comment) {
+        this.document = document;
+        this.initiator = initiator;
+        this.transferDate = transferDate;
+        this.action = action;
+        this.comment = comment;
+    }
+
     public Long getId() {
         return id;
     }
