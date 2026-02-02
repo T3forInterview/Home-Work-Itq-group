@@ -22,5 +22,5 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
     List<Document> findByFilters(@Param("status") Status status, @Param("author") String author,
                                  @Param("from") LocalDate from, @Param("to") LocalDate to);
     @Query("SELECT d FROM Document d WHERE d.id IN :ids")
-    Page<Document> findAllByIdIn(@Param("ids") List<Long> ids, Pageable pageable);
+    Page<Document> findAllById(@Param("ids") Iterable<Long> ids, Pageable pageable);
 }

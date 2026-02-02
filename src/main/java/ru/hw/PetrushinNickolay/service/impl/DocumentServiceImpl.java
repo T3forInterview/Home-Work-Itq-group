@@ -89,7 +89,7 @@ public class DocumentServiceImpl implements DocumentService {
     public List<DocumentResponseDTO> getSubmitDocumentList(List<Long> list, ChangeRequest request) {
         checkSizeList(list);
         return list.stream()
-                .map(id -> submitDocument(id, request))
+                .map(id -> submitListDocument(id, request))
                 .collect(Collectors.toList());
     }
 
@@ -97,13 +97,13 @@ public class DocumentServiceImpl implements DocumentService {
     public List<DocumentResponseDTO> getApproveDocumentList(List<Long> list, ChangeRequest request) {
         checkSizeList(list);
         return list.stream()
-                .map(id -> approveDocument(id, request))
+                .map(id -> approveListDocument(id, request))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public DocumentResponseDTO submitDocument(Long id, ChangeRequest request) {
+    public DocumentResponseDTO submitListDocument(Long id, ChangeRequest request) {
         DocumentResponseDTO responseDTO = new DocumentResponseDTO();
         Document document = findDocumentById(id);
         if (!checkDocumentExists(document,responseDTO, id)) {
@@ -130,7 +130,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     @Transactional
-    public DocumentResponseDTO approveDocument(Long id, ChangeRequest request) {
+    public DocumentResponseDTO approveListDocument(Long id, ChangeRequest request) {
         DocumentResponseDTO responseDTO = new DocumentResponseDTO();
         Document document = findDocumentById(id);
         if (!checkDocumentExists(document,responseDTO, id)) {
@@ -172,6 +172,35 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    @Transactional(rollbackFor = InvalidOperationException.class)
+    public Document approveDocument(Long id, ChangeRequest request) {
+        Document document = findDocumentById(id);
+        if (document == null) {
+            throw new InvalidOperationException("Документ с данным id=" + id + " не найден", HttpStatus.NOT_FOUND);
+        }
+        if (document.getStatus() != Status.SUBMITTED) {
+            throw  new InvalidOperationException("Статус документа должен быть \"На согласовании\"", HttpStatus.CONFLICT);
+        }
+        updateDocument(document, request);
+        document.setStatus(Status.APPROVED);
+
+        try {
+            Document updated = documentRepository.save(document);
+            ApprovalRegister approvalRegister = new ApprovalRegister(updated, LocalDate.now());
+            approvalRegisterRepository.save(approvalRegister);
+            History history = new History(updated, request.getInitiator(), LocalDate.now(),
+                    Action.APPROVE, request.getComment());
+            historyRepository.save(history);
+            return updated;
+
+        } catch (Exception e) {
+            throw new InvalidOperationException("Прочие ошибки", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
+    @Override
     public Page<Document> getListDocumentsByListId(List<Long> ids, int page, int size, String sortBy,
                                                    String sortDir) {
         Sort sort = Sort.unsorted();
@@ -182,8 +211,9 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        return documentRepository.findAllByIdIn(ids, pageable);
+        return documentRepository.findAllById(ids, pageable);
     }
+
 
     private Document findDocumentById(Long id) {
         return documentRepository.findById(id).orElse(null);
