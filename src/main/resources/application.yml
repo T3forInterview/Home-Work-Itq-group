@@ -36,3 +36,12 @@ spring:
     level:
       ru.hw.PetrushinNickolay: DEBUG
       org.springframework.web: INFO
+app:
+  document:
+    batch-size: 20
+submit:
+  worker:
+    delay: 10
+approve:
+  worker:
+    delay: 15

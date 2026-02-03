@@ -102,6 +102,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<Document> findByFilters(Status status, String author, LocalDate from, LocalDate to) {
+        return documentRepository.findByFilters(status, author, from, to);
+    }
+
+    @Override
     @Transactional
     public DocumentResponseDTO submitListDocument(Long id, ChangeRequest request) {
         DocumentResponseDTO responseDTO = new DocumentResponseDTO();
