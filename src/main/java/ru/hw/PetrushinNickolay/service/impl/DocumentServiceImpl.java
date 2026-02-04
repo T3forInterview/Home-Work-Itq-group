@@ -35,9 +35,6 @@ public class DocumentServiceImpl implements DocumentService {
     private HistoryRepository historyRepository;
     private ApprovalRegisterRepository approvalRegisterRepository;
 
-    public DocumentServiceImpl() {
-    }
-
     public DocumentServiceImpl(DocumentRepository documentRepository, HistoryRepository historyRepository,
                                ApprovalRegisterRepository approvalRegisterRepository) {
         this.documentRepository = documentRepository;
@@ -58,6 +55,11 @@ public class DocumentServiceImpl implements DocumentService {
         document.setUpdateDate(null);
         documentRepository.save(document);
         return document;
+    }
+
+    @Override
+    public List<Document> findAll() {
+        return documentRepository.findAll();
     }
 
     private Document getDocumentById(Long id) {
@@ -202,6 +204,32 @@ public class DocumentServiceImpl implements DocumentService {
             throw new InvalidOperationException("Прочие ошибки", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @Override
+    @Transactional
+    public Document submitDocument(Long id, ChangeRequest request) {
+        Document document = findDocumentById(id);
+        if (document == null) {
+            throw new InvalidOperationException("Документ с данным id=" + id + " не найден", HttpStatus.NOT_FOUND);
+        }
+        if (document.getStatus() != Status.DRAFT) {
+            throw new InvalidOperationException("Статус документа должен быть в статусе черновик", HttpStatus.CONFLICT);
+        }
+
+        updateDocument(document, request);
+        document.setStatus(Status.SUBMITTED);
+
+        try {
+            Document updated = documentRepository.save(document);
+            History history = new History(updated, request.getInitiator(), LocalDate.now(),
+                    Action.SUBMIT, request.getComment());
+            historyRepository.save(history);
+            return updated;
+        } catch (Exception e) {
+            throw new InvalidOperationException("Прочие ошибки", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
     }
 
 

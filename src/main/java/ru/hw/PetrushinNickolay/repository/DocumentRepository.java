@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface DocumentRepository extends JpaRepository<Document, Long> {
     Optional<Document> findById(Long id);
     @Query("SELECT d FROM Document d WHERE (:status IS NULL OR d.status = :status) AND " +
-            "(:author IS NULL OR LOWER(d.author) LIKE CONCAT('%', LOWER(:author), '%')) AND " +
+            "(:author IS NULL OR d.author LIKE %:author%) AND " +
             "(:from IS NULL OR d.createdDate >= :from) AND (:to IS NULL OR d.createdDate <= :to)")
     List<Document> findByFilters(@Param("status") Status status, @Param("author") String author,
                                  @Param("from") LocalDate from, @Param("to") LocalDate to);

@@ -13,7 +13,7 @@ public class SubmitWorker {
     private BatchService service;
     private int batchSize;
 
-    public SubmitWorker(BatchService service, @Value("${app.batch.size}") int batchSize) {
+    public SubmitWorker(BatchService service, @Value("${app.document.batch-size}") int batchSize) {
         this.service = service;
         this.batchSize = batchSize;
     }

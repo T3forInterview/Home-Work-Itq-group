@@ -38,7 +38,7 @@ spring:
       org.springframework.web: INFO
 app:
   document:
-    batch-size: 20
+    batch-size: 2
 submit:
   worker:
     delay: 10

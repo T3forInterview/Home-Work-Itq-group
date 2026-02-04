@@ -15,6 +15,7 @@ import java.util.List;
 
 public interface DocumentService {
     Document createDocument(RequestDocument requestDocument);
+    List<Document> findAll();
     DocumentHistoryDTO getDocumentWithHistory(Long id);
     List<DocumentResponseDTO> getSubmitDocumentList(List<Long> list, ChangeRequest request);
     List<DocumentResponseDTO> getApproveDocumentList(List<Long> list, ChangeRequest request);
@@ -23,5 +24,6 @@ public interface DocumentService {
     DocumentResponseDTO approveListDocument(Long id, ChangeRequest request);
     Page<Document> getListDocumentsByListId(List<Long> ids, int page, int size, String sortBy, String sortDir);
     Document approveDocument(Long id, ChangeRequest request);
+    Document submitDocument(Long id, ChangeRequest request);
 
 }
