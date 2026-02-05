@@ -19,7 +19,7 @@ public class DocumentController {
     }
 
     @PostMapping
-    public ResponseEntity createDocument(@RequestBody RequestDocument request) {
+    public ResponseEntity<Document> createDocument(@RequestBody RequestDocument request) {
         Document document = service.createDocument(request);
         return ResponseEntity.ok(document);
     }

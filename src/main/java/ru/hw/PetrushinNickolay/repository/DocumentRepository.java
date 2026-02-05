@@ -23,4 +23,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
                                  @Param("from") LocalDate from, @Param("to") LocalDate to);
     @Query("SELECT d FROM Document d WHERE d.id IN :ids")
     Page<Document> findAllById(@Param("ids") Iterable<Long> ids, Pageable pageable);
+    @Query("SELECT COUNT(d) FROM Document d WHERE d.status = :status")
+    long countByStatus(@Param("status") Status status);
+
 }

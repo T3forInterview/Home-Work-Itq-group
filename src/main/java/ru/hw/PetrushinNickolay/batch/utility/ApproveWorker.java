@@ -12,7 +12,7 @@ public class ApproveWorker {
     private BatchService service;
     private int batchSize;
 
-    public ApproveWorker(BatchService service, @Value("${app.batch.size}") int batchSize) {
+    public ApproveWorker(BatchService service, @Value("${app.document.batch-size}") int batchSize) {
         this.service = service;
         this.batchSize = batchSize;
     }
