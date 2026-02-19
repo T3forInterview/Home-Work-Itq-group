@@ -1,10 +1,10 @@
 package ru.hw.PetrushinNickolay.batch.service;
 
+import org.springframework.stereotype.Service;
 import ru.hw.PetrushinNickolay.model.enums.Status;
-import ru.hw.PetrushinNickolay.model.request.ChangeRequest;
-import ru.hw.PetrushinNickolay.model.request.RequestDocument;
 
 
 public interface BatchService {
+    int generationsDocuments();
     void processingBatch(Status status, int batchSize);
 }

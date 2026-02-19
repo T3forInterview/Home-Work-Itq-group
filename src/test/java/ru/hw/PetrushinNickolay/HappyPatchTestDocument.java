@@ -81,7 +81,7 @@ public class HappyPatchTestDocument {
         service.submitDocument(document.getId(), changeRequest);
 
         List<History> historyList = historyRepository.findAllByDocumentId(document.getId());
-        Assertions.assertEquals(1, historyList);
+        Assertions.assertEquals(1, historyList.size());
         Assertions.assertEquals(Action.SUBMIT, historyList.get(0).getAction());
         Assertions.assertEquals("Создание документа в статусе На согласовании", historyList.get(0).getComment());
 
@@ -103,12 +103,13 @@ public class HappyPatchTestDocument {
         service.approveDocument(document.getId(), changeRequest);
 
         List<ApprovalRegister> approvalList = approvalRegisterRepository.findAllByDocumentId(document.getId());
-        Assertions.assertEquals(1, approvalList);
+        Assertions.assertEquals(1, approvalList.size());
         Assertions.assertEquals(Status.APPROVED, approvalList.get(0).getDocument().getStatus());
 
         List<History> historyList = historyRepository.findAllByDocumentId(document.getId());
-        Assertions.assertEquals(1, historyList);
-        Assertions.assertEquals(Action.APPROVE, historyList.get(0).getAction());
+        Assertions.assertEquals(2, historyList.size());
+        Assertions.assertEquals(Action.SUBMIT, historyList.get(0).getAction());
+        Assertions.assertEquals(Action.APPROVE, historyList.get(1).getAction());
         Assertions.assertEquals("Создание документа в статусе Утвержден", historyList.get(0).getComment());
 
     }

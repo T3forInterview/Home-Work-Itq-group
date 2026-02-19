@@ -1,5 +1,7 @@
 package ru.hw.PetrushinNickolay.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.hw.PetrushinNickolay.dto.ConcurrentApproveDTO;
 import ru.hw.PetrushinNickolay.exception.InvalidOperationException;
@@ -20,6 +22,7 @@ import java.util.stream.IntStream;
 @Service
 public class TestConcurrentApproveImpl implements TestConcurrentApprove {
     private DocumentService service;
+    private static final Logger logger = LoggerFactory.getLogger(TestConcurrentApproveImpl.class);
 
     public TestConcurrentApproveImpl(DocumentService service) {
         this.service = service;
@@ -43,17 +46,20 @@ public class TestConcurrentApproveImpl implements TestConcurrentApprove {
                         Document document = service.approveDocument(id, request);
                         success.incrementAndGet();
                         status.set(document.getStatus().name());
-
+                        logger.info("Успешно утверждено " + success.get() + " документов");
                     } catch (InvalidOperationException e) {
                         switch (e.getStatus()) {
                             case CONFLICT:
                                 conflict.incrementAndGet();
+                                logger.info("Утверждение прошло с статусом конфлик у " + conflict.get() + " документов");
                                 break;
                             default:
                                 error.incrementAndGet();
+                                logger.info("Утверждение прошло с ошибками у " + error.get() + " документов");
                         }
                     } catch (Exception e) {
                         error.incrementAndGet();
+                        logger.info("Возникли ошибки");
                     }
                 }, executor))
                 .collect(Collectors.toList());

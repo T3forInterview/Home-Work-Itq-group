@@ -1,5 +1,7 @@
 package ru.hw.PetrushinNickolay.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,18 +24,18 @@ import ru.hw.PetrushinNickolay.model.request.ChangeRequest;
 import ru.hw.PetrushinNickolay.repository.ApprovalRegisterRepository;
 import ru.hw.PetrushinNickolay.repository.DocumentRepository;
 import ru.hw.PetrushinNickolay.repository.HistoryRepository;
-import ru.hw.PetrushinNickolay.service.DocumentService;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class DocumentServiceImpl implements DocumentService {
+public class DocumentServiceImpl implements ru.hw.PetrushinNickolay.service.DocumentService {
 
     private DocumentRepository documentRepository;
     private HistoryRepository historyRepository;
     private ApprovalRegisterRepository approvalRegisterRepository;
+    private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
     public DocumentServiceImpl(DocumentRepository documentRepository, HistoryRepository historyRepository,
                                ApprovalRegisterRepository approvalRegisterRepository) {
@@ -54,6 +56,7 @@ public class DocumentServiceImpl implements DocumentService {
         document.setCreatedDate(LocalDate.now());
         document.setUpdateDate(null);
         documentRepository.save(document);
+        logger.info("Сохранен документ " + document);
         return document;
     }
 
@@ -121,6 +124,7 @@ public class DocumentServiceImpl implements DocumentService {
             responseDTO.setDocumentId(document.getId());
             responseDTO.setResponseStatus(ResponseStatus.кофликт.name());
             responseDTO.setMessage("Не найден документ в статусе черновик с данным id=" + document.getId());
+            logger.info("Не найден документ в статусе черновик с данным id {}", document.getId());
             return responseDTO;
         }
         document.setStatus(Status.SUBMITTED);
@@ -132,6 +136,8 @@ public class DocumentServiceImpl implements DocumentService {
         responseDTO.setDocumentId(document.getId());
         responseDTO.setResponseStatus(ResponseStatus.успешно.name());
         responseDTO.setMessage("Статус документ успешно переведен с Черновика на отправлен на Согласование");
+        logger.info("Статус документа с номером {} успешно переведен с статуса Черновика на статус отправлен " +
+                "на Согласование", document.getId());
         return responseDTO;
     }
 
@@ -149,6 +155,7 @@ public class DocumentServiceImpl implements DocumentService {
             responseDTO.setDocumentId(document.getId());
             responseDTO.setResponseStatus(ResponseStatus.кофликт.name());
             responseDTO.setMessage("Не найден документ в статусе на согласовании с данным id=" + document.getId());
+            logger.info("Не найден документ в статусе на согласовании с данным id {}", document.getId());
             return responseDTO;
         }
         document.setStatus(Status.APPROVED);
@@ -163,16 +170,19 @@ public class DocumentServiceImpl implements DocumentService {
             historyRepository.save(history);
             responseDTO.setDocumentId(document.getId());
             responseDTO.setResponseStatus(ResponseStatus.успешно.name());
-            responseDTO.setMessage("Статус документ успешно переведен с на отправлен на Согласование на Утвержден");
+            responseDTO.setMessage("Статус документа успешно переведен со статуса отправлен на Согласование " +
+                    "на Утвержден");
+            logger.info("Статус документа с номером {} успешно переведен со статуса отправлен на Согласование " +
+                    "на Утвержден", document.getId());
             return responseDTO;
         } catch (Exception e) {
-            //запись в лог
             updated.setStatus(Status.SUBMITTED);
             updated.setUpdateDate(LocalDate.now());
             documentRepository.save(updated);
             responseDTO.setDocumentId(document.getId());
             responseDTO.setResponseStatus(ResponseStatus.ошибка_регистрации_в_реестре.name());
             responseDTO.setMessage("Утверждение документа было отменено");
+            logger.error("При утверждении документа {} возникли ошибки", document.getId());
             return responseDTO;
         }
 
@@ -186,7 +196,7 @@ public class DocumentServiceImpl implements DocumentService {
             throw new InvalidOperationException("Документ с данным id=" + id + " не найден", HttpStatus.NOT_FOUND);
         }
         if (document.getStatus() != Status.SUBMITTED) {
-            throw  new InvalidOperationException("Статус документа должен быть \"На согласовании\"", HttpStatus.CONFLICT);
+            throw  new InvalidOperationException("Статус документа должен быть На согласовании", HttpStatus.CONFLICT);
         }
         updateDocument(document, request);
         document.setStatus(Status.APPROVED);
@@ -198,8 +208,8 @@ public class DocumentServiceImpl implements DocumentService {
             History history = new History(updated, request.getInitiator(), LocalDate.now(),
                     Action.APPROVE, request.getComment());
             historyRepository.save(history);
+            logger.info("Документ утвержден");
             return updated;
-
         } catch (Exception e) {
             throw new InvalidOperationException("Прочие ошибки", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -225,6 +235,7 @@ public class DocumentServiceImpl implements DocumentService {
             History history = new History(updated, request.getInitiator(), LocalDate.now(),
                     Action.SUBMIT, request.getComment());
             historyRepository.save(history);
+            logger.info("Документ переведен в статус на Согласовании");
             return updated;
         } catch (Exception e) {
             throw new InvalidOperationException("Прочие ошибки", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -257,6 +268,7 @@ public class DocumentServiceImpl implements DocumentService {
             responseDTO.setDocumentId(id);
             responseDTO.setResponseStatus(ResponseStatus.не_найдено.name());
             responseDTO.setMessage("Не найден документ с данным id=" + id);
+            logger.info("Не найден документ с данным id {}", id);
             return false;
         }
         return true;

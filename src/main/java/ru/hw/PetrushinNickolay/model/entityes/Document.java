@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import ru.hw.PetrushinNickolay.model.enums.Status;
 
 import java.time.LocalDate;
@@ -23,15 +24,19 @@ public class Document {
     @Column(name = "uniq_number", unique = true, nullable = false)
     private String uniqNumber;
     @Column(name = "author", nullable = false)
+    @NotNull
     private String author;
     @Column(name = "name", nullable = false)
+    @NotNull
     private String name;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status;
     @Column(name = "initiator", nullable = false)
+    @NotNull
     private String initiator;
     @Column(name = "created_date", updatable = false, nullable = false)
+    @NotNull
     private LocalDate createdDate;
     @Column(name = "update_date")
     private LocalDate updateDate;
@@ -109,11 +114,29 @@ public class Document {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Document document = (Document) o;
-        return Objects.equals(id, document.id) && Objects.equals(uniqNumber, document.uniqNumber) && Objects.equals(author, document.author) && Objects.equals(name, document.name) && Objects.equals(createdDate, document.createdDate) && Objects.equals(updateDate, document.updateDate);
+        return Objects.equals(id, document.id) && Objects.equals(uniqNumber, document.uniqNumber)
+                && Objects.equals(author, document.author)
+                && Objects.equals(name, document.name) && status == document.status
+                && Objects.equals(initiator, document.initiator) && Objects.equals(createdDate, document.createdDate)
+                && Objects.equals(updateDate, document.updateDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, uniqNumber, author, name, createdDate, updateDate);
+        return Objects.hash(id, uniqNumber, author, name, status, initiator, createdDate, updateDate);
+    }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "id=" + id +
+                ", uniqNumber='" + uniqNumber + '\'' +
+                ", author='" + author + '\'' +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                ", initiator='" + initiator + '\'' +
+                ", createdDate=" + createdDate +
+                ", updateDate=" + updateDate +
+                '}';
     }
 }

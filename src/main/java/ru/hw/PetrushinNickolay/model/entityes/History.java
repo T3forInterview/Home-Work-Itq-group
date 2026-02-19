@@ -1,5 +1,6 @@
 package ru.hw.PetrushinNickolay.model.entityes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,11 +11,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import ru.hw.PetrushinNickolay.model.enums.Action;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "history")
@@ -24,10 +26,13 @@ public class History {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id", nullable = false)
+    @JsonIgnore
     private Document document;
     @Column(name = "initiator", nullable = false)
+    @NotNull
     private String initiator;
     @Column(name = "transfer_date", nullable = false)
+    @NotNull
     private LocalDate transferDate;
     @Column(name = "action", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -94,4 +99,19 @@ public class History {
         this.comment = comment;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        History history = (History) o;
+        return Objects.equals(id, history.id) && Objects.equals(document, history.document)
+                && Objects.equals(initiator, history.initiator)
+                && Objects.equals(transferDate, history.transferDate)
+                && action == history.action && Objects.equals(comment, history.comment);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, document, initiator, transferDate, action, comment);
+    }
 }
